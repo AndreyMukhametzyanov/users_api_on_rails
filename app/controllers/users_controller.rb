@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    user = User.new(users_params)
+    user = User.new(user_params)
     if user.save
       render json: { status: :ok, phone: user.phone }
     else
@@ -17,7 +17,7 @@ class UsersController < ApplicationController
     user = User.find_by(phone: params[:phone])
     return render json: { status: :not_found } unless user
 
-    if user.update(users_params)
+    if user.update(user_params)
       render json: { status: :ok, data: user }
     else
       render json: { status: :error, messages: user.errors.messages }
@@ -32,7 +32,7 @@ class UsersController < ApplicationController
     render json: { status: :ok }
   end
 
-  def show_by_phone
+  def show
     user = User.find_by(phone: params[:phone])
 
     if user
@@ -44,7 +44,7 @@ class UsersController < ApplicationController
 
   private
 
-  def users_params
+  def user_params
     params.require(:user).permit(:phone, :first_name, :last_name, :date_of_birth, :comment)
   end
 
