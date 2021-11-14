@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_action :check_access, except: :index
   def index
     users = User.all
     render json: { status: :ok, data: users }
