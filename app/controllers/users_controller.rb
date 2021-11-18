@@ -14,6 +14,17 @@ class UsersController < ApplicationController
     end
   end
 
+
+  def show
+    user = User.find_by(phone: params[:phone])
+
+    if user
+      render json: { status: :ok, data: user }
+    else
+      render json: { status: :not_found }
+    end
+  end
+
   def update
     user = User.find_by(phone: params[:phone])
     return render json: { status: :not_found } unless user
@@ -31,16 +42,6 @@ class UsersController < ApplicationController
 
     user.destroy
     render json: { status: :ok }
-  end
-
-  def show
-    user = User.find_by(phone: params[:phone])
-
-    if user
-      render json: { status: :ok, data: user }
-    else
-      render json: { status: :not_found }
-    end
   end
 
   private
