@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UsersController < ApplicationController
   before_action :check_access, except: :index
   def index
@@ -13,7 +15,6 @@ class UsersController < ApplicationController
       render json: { status: :error, messages: user.errors.messages }
     end
   end
-
 
   def show
     user = User.find_by(phone: params[:phone])
@@ -49,5 +50,4 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(:phone, :first_name, :last_name, :date_of_birth, :comment)
   end
-
 end
