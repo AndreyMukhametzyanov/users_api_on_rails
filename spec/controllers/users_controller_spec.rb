@@ -52,30 +52,6 @@ RSpec.describe UsersController, type: :request do
     end
   end
 
-  describe '#destroy' do
-    before { delete user_path(user_phone) }
-
-    context 'when record exists' do
-      let!(:user) { create :user }
-      let(:user_phone) { user.phone }
-
-      it 'should delete user' do
-        expect(response).to have_http_status(200)
-        expect(subject[:status]).to eq('ok')
-        expect(User.find_by(phone: user_phone)).to be_nil
-      end
-    end
-
-    context 'when record is not exists' do
-      let(:user_phone) { 123_231_232 }
-
-      it 'should returns status not found' do
-        expect(response).to have_http_status(200)
-        expect(subject[:status]).to eq('not_found')
-      end
-    end
-  end
-
   describe '#show' do
     before { get user_path(user_phone) }
 
@@ -133,7 +109,7 @@ RSpec.describe UsersController, type: :request do
 
       context 'when params is wrong' do
         let(:user_params) { { user: { phone: '' } } }
-        let(:error_messages) { { phone: ["can't be blank", "wrong phone format"] } }
+        let(:error_messages) { { phone: ["can't be blank", 'wrong phone format'] } }
 
         it 'returns errors' do
           expect(response).to have_http_status(200)
@@ -144,7 +120,7 @@ RSpec.describe UsersController, type: :request do
     end
 
     context 'when record is not exists' do
-      let(:user_phone) { "123_456" }
+      let(:user_phone) { '123_456' }
       let(:user_params) { { user: { phone: '' } } }
 
       it 'returns status not found' do
@@ -154,5 +130,51 @@ RSpec.describe UsersController, type: :request do
     end
   end
 
+  describe '#destroy' do
+    before { delete user_path(user_phone) }
+
+    context 'when request is accepted' do
+      before do
+        stub_request(:post, described_class::PATH)
+          .to_return(status: 200, body: { service_conclusion: 'accepted' }.to_json, headers: { 'Content-Type' => 'application/json' })
+      end
+
+      context 'when record exists' do
+        let!(:user) { create :user }
+        let(:user_phone) { user.phone }
+
+        it 'should delete user' do
+          expect(response).to have_http_status(200)
+          expect(subject[:status]).to eq('ok')
+          expect(User.find_by(phone: user_phone)).to be_nil
+        end
+      end
+
+      context 'when record is not exists' do
+        let(:user_phone) { 123_231_232 }
+
+        it 'should returns status not found' do
+          expect(response).to have_http_status(200)
+          expect(subject[:status]).to eq('not_found')
+        end
+      end
+
+    end
+    # context 'when request is denied' do
+    #   let(:reason) { 'Зачем номер брата удаляешь?' }
+    #   let(:user_phone) { '79872589874' }
+    #   before do
+    #     stub_request(:post, described_class::PATH).with(body: "{\"phone\":\"79872589874\",\"method\":\"DELETE\"}").to_return(status: 200, body: { service_conclusion: 'forbidden', reason: reason }.to_json, headers: { 'Content-Type' => 'application/json' })
+    #   end
+    #
+    #   it 'should return forbidden' do
+    #     puts subject
+    #     expect(response).to have_http_status(200)
+    #     expect(subject[:status]).to eq('ok')
+    #     expect(subject[]).to eq(reason)
+    #
+    #   end
+    # end
+  end
 end
 
